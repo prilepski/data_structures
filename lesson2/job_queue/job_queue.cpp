@@ -21,16 +21,16 @@ class JobQueue {
   vector<long long> m_HeapStartTimes;
 
   void WriteResponse() const {
-    for (int i = 0; i < jobs_.size(); ++i) {
+/*    for (int i = 0; i < jobs_.size(); ++i) {
       cout << assigned_workers_[i] << " " << start_times_[i] << "\n";
     }
-
+*/
 /*    cout << "===============" << std::endl;
-
+*/
     for (long long i = 0; i < jobs_.size(); ++i) {
       cout << m_HeapAssignedWorkers[i] << " " << m_HeapStartTimes[i] << "\n";
 
-    } */
+    }
   }
 
   void ReadData() {
@@ -83,8 +83,9 @@ class JobQueue {
       if (rightIndex < m_HeapSize)
         if (jobs_[m_HeapJobs[rightIndex]] < jobs_[m_HeapJobs[minIndex]])
           minIndex = rightIndex;
-        else if (m_HeapAssignedWorkers[m_HeapJobs[rightIndex]] < m_HeapAssignedWorkers[m_HeapJobs[minIndex]])
-          minIndex = rightIndex;
+        else if (jobs_[m_HeapJobs[rightIndex]] == jobs_[m_HeapJobs[minIndex]])
+          if (m_HeapAssignedWorkers[m_HeapJobs[rightIndex]] < m_HeapAssignedWorkers[m_HeapJobs[minIndex]])
+            minIndex = rightIndex;
 
       if (index != minIndex){
         long long tmp = m_HeapJobs[index];
@@ -115,7 +116,9 @@ class JobQueue {
       else
         parentIndex = (index - 2) / 2;
 
-      if (jobs_[m_HeapJobs[index]] < jobs_[m_HeapJobs[parentIndex]]){
+      if (jobs_[m_HeapJobs[index]] < jobs_[m_HeapJobs[parentIndex]] ||
+        ( jobs_[m_HeapJobs[index]] == jobs_[m_HeapJobs[parentIndex]] &&
+          m_HeapAssignedWorkers[m_HeapJobs[index]] < m_HeapAssignedWorkers[m_HeapJobs[parentIndex]])){
         long long tmp = m_HeapJobs[index];
         m_HeapJobs[index] = m_HeapJobs[parentIndex];
         m_HeapJobs[parentIndex] = tmp;
@@ -181,8 +184,8 @@ class JobQueue {
  public:
   void Solve() {
     ReadData();
-    AssignJobs();
-    //AssignJobsHeap();
+    //AssignJobs();
+    AssignJobsHeap();
     WriteResponse();
   }
 };
