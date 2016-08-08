@@ -7,22 +7,12 @@ using std::ios_base;
 using std::cin;
 using std::cout;
 
-struct TreeNode{
-  TreeNode():
-    node(-1),
-    index(-1){
-  }
-
-  long long node;
-  long long index;
-};
 
 class TreeOrders {
   long long n;
   vector <long long> key;
   vector <long long> left;
   vector <long long> right;
-  vector <TreeNode> tree;
 
 public:
   void read() {
@@ -38,60 +28,8 @@ public:
       if (right[i] == -1)
         numEmpty++;
     }
-
-    tree.resize(key.size() + numEmpty);
-
-    buildTree();
   }
 
-  void buildTree(){
-    if (tree.size() <= 0)
-      return;
-
-    TreeNode Node;
-    Node.node = key[0];
-    Node.index = 0;
-    tree[0] = Node;
-/*
-    Node.node = key[left[0]];
-    Node.index = left[0];
-    tree[1] = Node;
-
-
-    tree[2] = key[right[0]];
-*/
-    long long LeftNode, RightNode;
-    for (long long i = 0; i <= tree.size() / 2; ++i){
-      if (tree[i].node == -1)
-        continue;
-      LeftNode = 2 * i + 1;
-      if (LeftNode < tree.size()){
-        if (left[tree[i].index] != -1){
-          Node.node = key[left[tree[i].index]];
-          Node.index = left[tree[i].index];
-        }
-        else{
-          Node.index = -1;
-          Node.node = -1;
-        }
-        tree[LeftNode] = Node;
-      }
-
-      RightNode = 2 * i + 2;
-      if (RightNode < tree.size()){
-        if (right[tree[i].index] != -1){
-          Node.node = key[right[tree[i].index]];
-          Node.index = right[tree[i].index];
-        }
-        else{
-          Node.node = -1;
-          Node.index = -1;
-        }
-        tree[RightNode] = Node;
-      }
-    }
-    return;
-  }
 
   vector <long long> in_order() {
     vector<long long> result;
@@ -150,6 +88,63 @@ public:
     vector<long long> result;
     // Finish the implementation
     // You may need to add a new recursive method to do that
+    if (key.size() <= 0)
+      return result; // nothing to do. The tree is empty
+
+    vector<long long> NodeIds; // stack for tree nodes while traversing
+    long long curNode = 0;
+    long long leftNode = 0, rightNode = 0, prevRight = -1;
+    for (;;){
+      if (curNode == -1){
+        // need to go level up. Extract item from the stack
+        if (NodeIds.size() != 0){
+          curNode = NodeIds[NodeIds.size() - 1];
+        }
+        else // no more items. We are done
+          break;
+
+        // we already went all the way left. So, just need to go right
+        // First, we print current item. Everything on the left has been printed
+//        result.push_back(key[curNode]);
+        if (right[curNode] != -1){
+          if (right[curNode] != prevRight){
+            // we did not come from there
+            curNode = right[curNode];
+            prevRight = -1;
+            continue;
+          }
+          else{
+            // we just came from there
+            NodeIds.pop_back();
+            prevRight = curNode;
+            curNode = -1;
+            continue;
+          }
+        }
+        else{
+          // we do not need it any more. Remove it from the stack
+          NodeIds.pop_back();
+          prevRight = curNode; // remember branch on the right we came from
+          curNode = -1;
+          continue;
+        }
+      }
+      if (curNode != -1){
+        result.push_back(key[curNode]);
+        NodeIds.push_back(curNode);
+        if (left[curNode] != -1){
+          // store current node and traverse left
+          curNode = left[curNode];
+          continue;
+        }
+        else{
+          // no items on the left...
+          // store it on the stack and go right
+          curNode = -1;
+          continue;
+        }
+      }
+    }
 
     return result;
   }
