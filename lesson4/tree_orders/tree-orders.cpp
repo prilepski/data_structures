@@ -158,6 +158,66 @@ public:
     vector<long long> result;
     // Finish the implementation
     // You may need to add a new recursive method to do that
+    if (key.size() <= 0)
+      return result; // nothing to do. The tree is empty
+
+    vector<long long> NodeIds; // stack for tree nodes while traversing
+    long long curNode = 0;
+    long long leftNode = 0, rightNode = 0, prevRight = -1;
+    for (;;){
+      if (curNode == -1){
+        // need to go level up. Extract item from the stack
+        if (NodeIds.size() != 0){
+          curNode = NodeIds[NodeIds.size() - 1];
+        }
+        else // no more items. We are done
+          break;
+
+        // we already went all the way left. So, just need to go right
+        // First, we print current item. Everything on the left has been printed
+//        result.push_back(key[curNode]);
+        if (right[curNode] != -1){
+          if (right[curNode] != prevRight){
+            // we did not come from there
+            curNode = right[curNode];
+            prevRight = -1;
+            continue;
+          }
+          else{
+            // we just came from there
+            result.push_back(key[curNode]);
+            NodeIds.pop_back();
+            prevRight = curNode;
+            curNode = -1;
+            continue;
+          }
+        }
+        else{
+          // no children on the rght. It is a leaf. Print it
+          result.push_back(key[curNode]);
+          // we do not need it any more. Remove it from the stack
+          NodeIds.pop_back();
+          prevRight = curNode; // remember branch on the right we came from
+          curNode = -1;
+          continue;
+        }
+      }
+      if (curNode != -1){
+        if (left[curNode] != -1){
+          // store current node and traverse left
+          NodeIds.push_back(curNode);
+          curNode = left[curNode];
+          continue;
+        }
+        else{
+          // no items on the left...
+          // store it on the stack and go right
+          NodeIds.push_back(curNode);
+          curNode = -1;
+          continue;
+        }
+      }
+    }
 
     return result;
   }
